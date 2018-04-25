@@ -1,0 +1,25 @@
+#######################################
+# Syntax Coloring Map For RingBuffer
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+RingBuffer				    KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+push	  							KEYWORD2
+pop										KEYWORD2
+isFull								KEYWORD2
+isEmpty								KEYWORD2
+clear									KEYWORD2
+lockedPush						KEYWORD2
+lockedPop							KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
