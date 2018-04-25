@@ -44,4 +44,81 @@ public:
   void clear()   { mSize = 0; }
 };
 
+template <typename rg_element_t, uint8_t maxSize>
+uint8_t RingBuffer<rg_element_t, maxSize>::writeIndex()
+{
+ uint8_t wi = mReadIndex + mSize;
+ if (wi >= maxSize) wi -= maxSize;
+ return wi;
+}
+
+template <typename rg_element_t, uint8_t maxSize>
+RingBuffer<rg_element_t, maxSize>::RingBuffer() :
+mReadIndex(0),
+mSize(0)
+{
+}
+
+template <typename rg_element_t, uint8_t maxSize>
+bool RingBuffer<rg_element_t, maxSize>::push(const rg_element_t inElement)
+{
+  if (isFull()) return false;
+  mBuffer[writeIndex()] = inElement;
+  mSize++;
+  return true;
+}
+
+template <typename rg_element_t, uint8_t maxSize>
+bool RingBuffer<rg_element_t, maxSize>::push(const rg_element_t * const inElement)
+{
+  if (isFull()) return false;
+  mBuffer[writeIndex()] = *inElement;
+  mSize++;
+  return true;
+}
+
+template <typename rg_element_t, uint8_t maxSize>
+bool RingBuffer<rg_element_t, maxSize>::lockedPush(const rg_element_t inElement)
+{
+  if (isFull()) return false;
+  noInterrupts();
+  mBuffer[writeIndex()] = inElement;
+  mSize++;
+  interrupts();
+  return true;
+}
+
+template <typename rg_element_t, uint8_t maxSize>
+bool RingBuffer<rg_element_t, maxSize>::lockedPush(const rg_element_t * const inElement)
+{
+  if (isFull()) return false;
+  noInterrupts();
+  mBuffer[writeIndex()] = *inElement;
+  mSize++;
+  interrupts();
+  return true;
+}
+
+template <typename rg_element_t, uint8_t maxSize>
+bool RingBuffer<rg_element_t, maxSize>::pop(rg_element_t &outElement)
+{
+  if (isEmpty()) return false;
+  outElement = mBuffer[mReadIndex];
+  mReadIndex++;
+  if (mReadIndex >= maxSize) mReadIndex = 0;
+  return true;
+}
+
+template <typename rg_element_t, uint8_t maxSize>
+bool RingBuffer<rg_element_t, maxSize>::lockedPop(rg_element_t &outElement)
+{
+  if (isEmpty()) return false;
+  noInterrupts();
+  outElement = mBuffer[mReadIndex];
+  mReadIndex++;
+  if (mReadIndex >= maxSize) mReadIndex = 0;
+  interrupts();
+  return true;
+}
+
 #endif /* __RINGBUFFER_H__ */
