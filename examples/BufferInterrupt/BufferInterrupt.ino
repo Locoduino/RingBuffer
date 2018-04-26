@@ -3,7 +3,7 @@
  */
 #include <RingBuffer.h>
  
-RingBuffer<uint32_t, 10> comBuffer;
+RingBuffer<uint32_t, 100> comBuffer;
 
 void externalInterruptHandler()
 {

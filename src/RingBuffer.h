@@ -33,11 +33,11 @@ private:
 
 public:
   RingBuffer();
-  bool push(const rg_element_t inElement);
-  bool push(const rg_element_t * const inElement);
+  bool push(const rg_element_t inElement) __attribute__ ((noinline));
+  bool push(const rg_element_t * const inElement) __attribute__ ((noinline));
   bool lockedPush(const rg_element_t inElement);
   bool lockedPush(const rg_element_t * const inElement);
-  bool pop(rg_element_t &outElement);
+  bool pop(rg_element_t &outElement) __attribute__ ((noinline));
   bool lockedPop(rg_element_t &outElement);
   bool isFull()  { return mSize == __maxSize__; }
   bool isEmpty() { return mSize == 0; }
@@ -83,23 +83,19 @@ bool RingBuffer<rg_element_t, __maxSize__>::push(const rg_element_t * const inEl
 template <typename rg_element_t, uint8_t __maxSize__>
 bool RingBuffer<rg_element_t, __maxSize__>::lockedPush(const rg_element_t inElement)
 {
-  if (isFull()) return false;
   noInterrupts();
-  mBuffer[writeIndex()] = inElement;
-  mSize++;
+  bool result = push(inElement);
   interrupts();
-  return true;
+  return result;
 }
 
 template <typename rg_element_t, uint8_t __maxSize__>
 bool RingBuffer<rg_element_t, __maxSize__>::lockedPush(const rg_element_t * const inElement)
 {
-  if (isFull()) return false;
   noInterrupts();
-  mBuffer[writeIndex()] = *inElement;
-  mSize++;
+  bool result = push(inElement);
   interrupts();
-  return true;
+  return result;
 }
 
 template <typename rg_element_t, uint8_t __maxSize__>
@@ -116,14 +112,10 @@ bool RingBuffer<rg_element_t, __maxSize__>::pop(rg_element_t &outElement)
 template <typename rg_element_t, uint8_t __maxSize__>
 bool RingBuffer<rg_element_t, __maxSize__>::lockedPop(rg_element_t &outElement)
 {
-  if (isEmpty()) return false;
   noInterrupts();
-  outElement = mBuffer[mReadIndex];
-  mReadIndex++;
-  mSize--;
-  if (mReadIndex == __maxSize__) mReadIndex = 0;
+  bool result = pop(outElement);
   interrupts();
-  return true;
+  return result;
 }
 
 template <typename rg_element_t, uint8_t __maxSize__>
