@@ -16,6 +16,32 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+ /*
+  * Note about interrupt safe implementation
+  *
+  * To be safe from interrupts, a sequence of C instructions must be framed
+  * by a pair of interrupt diable and enable instructions and ensure that the
+  * compiler will not move writing variables to memory outside the protected
+  * area. This is called a critical section. Usually the manipulated variables
+  * receive the volatile qualifier so that any changes are immediately written
+  * to memory. Here the approach is different. First of all you have to know
+  * that volatile is useless if the variables are updated in a function and
+  * that this function is called within the critical section. Indeed, the
+  * semantics of the C language require that the variables in memory be updated
+  * before returning from the function. But beware of function inlining because
+  * the compiler may decide to delete a function call in favor of simply
+  * inserting its code in the caller. To force the compiler to use a real
+  * function call, __attribute__((noinline)) have been added to the push and
+  * pop functions. In this way the lockedPush and lockedPop functions ensure
+  * that in the critical section a push and pop function call respectively will
+  * be used by the compiler. This ensures that, because of the function call,
+  * the variables are written to memory in the critical section and also
+  * ensures that, despite the reorganization of the instructions due to
+  * optimizations, the critical section will be well opened and closed at the
+  * right place because function calls, due to potential side effects, are not
+  * subject to such reorganizations.
+  */
+
 #ifndef __RINGBUFFER_H__
 #define __RINGBUFFER_H__
 
@@ -32,18 +58,31 @@ private:
   uint8_t writeIndex();
 
 public:
+  /* Constructor. Init mReadIndex to 0 and mSize to 0 */
   RingBuffer();
+  /* Push a data at the end of the buffer */
   bool push(const rg_element_t inElement) __attribute__ ((noinline));
+  /* Push a data at the end of the buffer. Copy it from its pointer */
   bool push(const rg_element_t * const inElement) __attribute__ ((noinline));
+  /* Push a data at the end of the buffer with interrupts disabled */
   bool lockedPush(const rg_element_t inElement);
+  /* Push a data at the end of the buffer with interrupts disabled. Copy it from its pointer */
   bool lockedPush(const rg_element_t * const inElement);
+  /* Pop the data at the beginning of the buffer */
   bool pop(rg_element_t &outElement) __attribute__ ((noinline));
+  /* Pop the data at the beginning of the buffer with interrupt disabled */
   bool lockedPop(rg_element_t &outElement);
+  /* Return true if the buffer is full */
   bool isFull()  { return mSize == __maxSize__; }
+  /* Return true if the buffer is empty */
   bool isEmpty() { return mSize == 0; }
+  /* Reset the buffer  to an empty state */
   void clear()   { mSize = 0; }
+  /* return the size of the buffer */
   uint8_t size() { return mSize; }
+  /* return the maximum size of the buffer */
   uint8_t maxSize() { return __maxSize__; }
+  /* access the buffer using array syntax, not interrupt safe */
   rg_element_t &operator[](uint8_t inIndex);
 };
 

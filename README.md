@@ -4,7 +4,7 @@ A simple and easy to use ring buffer library for Arduino. Interrupt safe functio
 
 ## Limitation
 
-The size of the ring buffer is limited to 255 elements. The compiler will not prevent you from declaring a buffer size 0.
+The size of the ring buffer is limited to 255 elements. The compiler will not prevent you from declaring a buffer size 0 but a size 0 is not supported (and otherwise silly). Among the quirks with a size of 0 is the fact that the buffer is both empty and full.
 
 ## Using the library
 
@@ -46,11 +46,11 @@ The following functions are available to manage the ring buffer.
 
 ### clear()
 
-```clear()``` empties the ring buffer.
+```clear()``` empties the ring buffer resetting its size to 0.
 
 ### push(data)
 
-```push(data)``` pushes ```data``` at the end of the ring buffer if there is room available. ```data``` should be of the type declared when the ring buffer has been instanciated. If the data has been successfully added to the ring buffer ```true``` is returned and ```false``` otherwise. A second form exists where the argument is a pointer to the data. The use of this second form allows to reduce the number of copies and should be used if the size of the data in bytes exceeds 4. 
+```push(data)``` pushes ```data``` at the end of the ring buffer if there is room available. ```data``` should be of the type declared when the ring buffer has been instanciated. If the data has been successfully added to the ring buffer ```true``` is returned and ```false``` otherwise. A second form exists where the argument is a pointer to the data. The use of this second form allows to reduce the number of copies. Using argument passing by value or pointer is left to your discretion
 
 ### lockedPush(data)
 
@@ -84,7 +84,7 @@ index 0 corresponds to the first element in the buffer and index ```size() - 1``
 
 If the index provided is greater than or equal to ```size()``` the element at index 0 is returned even if it does not exist. This avoids making an access outside the buffer. It is therefore up to you to verify that the index is valid. 
 
-Note: this operator is not sure about interruptions. If you need to access a circular buffer in your main program while the buffer is being manipulated by an interrupt handler, it is up to you to inhibit and restore interrupts before and after access.
+Note: this operator is not interrupt safe. If you need to access a circular buffer in your main program while the buffer is being manipulated by an interrupt handler, it is up to you to inhibit and restore interrupts before and after access.
 
 ## Some examples
 
@@ -117,15 +117,24 @@ void setup()
 }
 ```
 
-### Print all the elements of a buffer
+### Fill a buffer with values from 10 to 1 then print all the elements
 
 ```
+#include <RingBuffer.h>
+
 RingBuffer<uint8_t, 10> myBuffer;
 
 void setup()
 {
+  uint8_t i = 10;
+  while(myBuffer.push(i--));
+  Serial.begin(115200);
   for (uint8_t j = 0; j < myBuffer.size(); j++) {
     Serial.println(myBuffer[j]);
   }
+}
+
+void loop()
+{
 }
 ```
