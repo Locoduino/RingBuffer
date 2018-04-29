@@ -58,7 +58,7 @@ The following functions are available to manage the ring buffer.
 
 ### pop(data)
 
-If the buffer is not empty, ```pop(data)``` pops a data from the end of the ring buffer, puts it in ```data``` and return ```true```. If the buffer is empty ```data``` is unchanged and ```false``` is returned.
+If the buffer is not empty, ```pop(data)``` pops a data from the beginning of the ring buffer, puts it in ```data``` and return ```true```. If the buffer is empty ```data``` is unchanged and ```false``` is returned.
 
 ### lockedPop(data)
 

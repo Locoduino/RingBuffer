@@ -20,8 +20,8 @@
   * Note about interrupt safe implementation
   *
   * To be safe from interrupts, a sequence of C instructions must be framed
-  * by a pair of interrupt diable and enable instructions and ensure that the
-  * compiler will not move writing variables to memory outside the protected
+  * by a pair of interrupt disable and enable instructions and ensure that the
+  * compiler will not move writing of variables to memory outside the protected
   * area. This is called a critical section. Usually the manipulated variables
   * receive the volatile qualifier so that any changes are immediately written
   * to memory. Here the approach is different. First of all you have to know
