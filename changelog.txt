@@ -1,5 +1,5 @@
 +---------------------------------------------------------------------------+
 | RingBuffer changelog                                                     |
 +---------------------------------------------------------------------------+
-1.1   Fix a mistake in pop documentation
+1.0.1 Fix a mistake in pop documentation
 1.0   Initial release.
