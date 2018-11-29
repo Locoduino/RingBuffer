@@ -144,3 +144,14 @@ void loop()
 {
 }
 ```
+
+## Note about Travis CI
+
+The RingBuffer Library examples are built on Travis CI for the following boards:
+
+- Arduino Leonardo
+- Arduino Uno
+- Arduino Mega 2560
+- Arduino Zero
+- Arduino Due
+- ESP8266
