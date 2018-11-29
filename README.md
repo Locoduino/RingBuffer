@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Locoduino/RingBuffer.svg?branch=master)](https://travis-ci.org/Locoduino/RingBuffer)
+
 # RingBuffer
 
 A simple and easy to use ring buffer library for Arduino. Interrupt safe functions are provided too.
@@ -88,7 +90,7 @@ to get the element at index 3 in the buffer.
 
 index 0 corresponds to the first element in the buffer and index ```size() - 1``` to the last element.
 
-If the index provided is greater than or equal to ```size()``` the element at index 0 is returned even if it does not exist. This avoids making an access outside the buffer. It is therefore up to you to verify that the index is valid. 
+If the index provided is greater than or equal to ```size()``` the element at index 0 is returned even if it does not exist. This avoids making an access outside the buffer. It is therefore up to you to verify that the index is valid.
 
 Note: this operator is not interrupt safe. If you need to access a circular buffer in your main program while the buffer is being manipulated by an interrupt handler, it is up to you to inhibit and restore interrupts before and after access.
 
