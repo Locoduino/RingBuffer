@@ -42,13 +42,13 @@
   * subject to such reorganizations.
   */
 
-#ifndef __RINGBUFFER_H__
-#define __RINGBUFFER_H__
+#ifndef __RINGBUF_H__
+#define __RINGBUF_H__
 
 #include <Arduino.h>
 
 template <typename rg_element_t, uint8_t __maxSize__>
-class RingBuffer
+class RingBuf
 {
 private:
   rg_element_t mBuffer[__maxSize__];
@@ -59,7 +59,7 @@ private:
 
 public:
   /* Constructor. Init mReadIndex to 0 and mSize to 0 */
-  RingBuffer();
+  RingBuf();
   /* Push a data at the end of the buffer */
   bool push(const rg_element_t inElement) __attribute__ ((noinline));
   /* Push a data at the end of the buffer. Copy it from its pointer */
@@ -87,7 +87,7 @@ public:
 };
 
 template <typename rg_element_t, uint8_t __maxSize__>
-uint8_t RingBuffer<rg_element_t, __maxSize__>::writeIndex()
+uint8_t RingBuf<rg_element_t, __maxSize__>::writeIndex()
 {
  uint16_t wi = (uint16_t)mReadIndex + (uint16_t)mSize;
  if (wi >= (uint16_t)__maxSize__) wi -= (uint16_t)__maxSize__;
@@ -95,14 +95,14 @@ uint8_t RingBuffer<rg_element_t, __maxSize__>::writeIndex()
 }
 
 template <typename rg_element_t, uint8_t __maxSize__>
-RingBuffer<rg_element_t, __maxSize__>::RingBuffer() :
+RingBuf<rg_element_t, __maxSize__>::RingBuf() :
 mReadIndex(0),
 mSize(0)
 {
 }
 
 template <typename rg_element_t, uint8_t __maxSize__>
-bool RingBuffer<rg_element_t, __maxSize__>::push(const rg_element_t inElement)
+bool RingBuf<rg_element_t, __maxSize__>::push(const rg_element_t inElement)
 {
   if (isFull()) return false;
   mBuffer[writeIndex()] = inElement;
@@ -111,7 +111,7 @@ bool RingBuffer<rg_element_t, __maxSize__>::push(const rg_element_t inElement)
 }
 
 template <typename rg_element_t, uint8_t __maxSize__>
-bool RingBuffer<rg_element_t, __maxSize__>::push(const rg_element_t * const inElement)
+bool RingBuf<rg_element_t, __maxSize__>::push(const rg_element_t * const inElement)
 {
   if (isFull()) return false;
   mBuffer[writeIndex()] = *inElement;
@@ -120,7 +120,7 @@ bool RingBuffer<rg_element_t, __maxSize__>::push(const rg_element_t * const inEl
 }
 
 template <typename rg_element_t, uint8_t __maxSize__>
-bool RingBuffer<rg_element_t, __maxSize__>::lockedPush(const rg_element_t inElement)
+bool RingBuf<rg_element_t, __maxSize__>::lockedPush(const rg_element_t inElement)
 {
   noInterrupts();
   bool result = push(inElement);
@@ -129,7 +129,7 @@ bool RingBuffer<rg_element_t, __maxSize__>::lockedPush(const rg_element_t inElem
 }
 
 template <typename rg_element_t, uint8_t __maxSize__>
-bool RingBuffer<rg_element_t, __maxSize__>::lockedPush(const rg_element_t * const inElement)
+bool RingBuf<rg_element_t, __maxSize__>::lockedPush(const rg_element_t * const inElement)
 {
   noInterrupts();
   bool result = push(inElement);
@@ -138,7 +138,7 @@ bool RingBuffer<rg_element_t, __maxSize__>::lockedPush(const rg_element_t * cons
 }
 
 template <typename rg_element_t, uint8_t __maxSize__>
-bool RingBuffer<rg_element_t, __maxSize__>::pop(rg_element_t &outElement)
+bool RingBuf<rg_element_t, __maxSize__>::pop(rg_element_t &outElement)
 {
   if (isEmpty()) return false;
   outElement = mBuffer[mReadIndex];
@@ -149,7 +149,7 @@ bool RingBuffer<rg_element_t, __maxSize__>::pop(rg_element_t &outElement)
 }
 
 template <typename rg_element_t, uint8_t __maxSize__>
-bool RingBuffer<rg_element_t, __maxSize__>::lockedPop(rg_element_t &outElement)
+bool RingBuf<rg_element_t, __maxSize__>::lockedPop(rg_element_t &outElement)
 {
   noInterrupts();
   bool result = pop(outElement);
@@ -158,7 +158,7 @@ bool RingBuffer<rg_element_t, __maxSize__>::lockedPop(rg_element_t &outElement)
 }
 
 template <typename rg_element_t, uint8_t __maxSize__>
-rg_element_t &RingBuffer<rg_element_t, __maxSize__>::operator[](uint8_t inIndex)
+rg_element_t &RingBuf<rg_element_t, __maxSize__>::operator[](uint8_t inIndex)
 {
   if (inIndex >= mSize) return mBuffer[0];
   uint16_t index = (uint16_t)mReadIndex + (uint16_t)inIndex;
@@ -166,4 +166,4 @@ rg_element_t &RingBuffer<rg_element_t, __maxSize__>::operator[](uint8_t inIndex)
   return mBuffer[(uint8_t)index];
 }
 
-#endif /* __RINGBUFFER_H__ */
+#endif /* __RINGBUF_H__ */

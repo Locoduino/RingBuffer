@@ -6,7 +6,7 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-RingBuffer	KEYWORD1
+RingBuf	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)

@@ -2,6 +2,12 @@
 
 A simple and easy to use ring buffer library for Arduino. Interrupt safe functions are provided too.
 
+## Changelog
+
+- 1.0.2 Changed the name of the template from RingBuffer to RingBuf in order to avoid a name conflict with and internal RingBuffer class used in the ARM version of the Arduino core.
+- 1.0.1 Fix a mistake in pop documentation
+- 1.0   Initial release.
+
 ## Limitation
 
 The size of the ring buffer is limited to 255 elements. The compiler will not prevent you from declaring a buffer size 0 but a size 0 is not supported (and otherwise silly). Among the quirks with a size of 0 is the fact that the buffer is both empty and full.
@@ -11,19 +17,19 @@ The size of the ring buffer is limited to 255 elements. The compiler will not pr
 First include the header in your sketch
 
 ```
-#include <RingBuffer.h>
+#include <RingBuf.h>
 ```
 
 Instantiate a ring buffer by using the following syntax:
 
 ```
-RingBuffer<type, size> myRingBuffer;
+RingBuf<type, size> myRingBuffer;
 ```
 
 ```type``` is the type name of each element of the ring buffer. ```size``` is the size, from 1 to 255, of the ring buffer. For instance the declaration shown below instantiate a ring buffer where each element is a ```byte``` with a size of 20.
 
 ```
-RingBuffer<byte, 20> aBuffer;
+RingBuf<byte, 20> aBuffer;
 ```
 
 ## Functions

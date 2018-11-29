@@ -1,14 +1,14 @@
 /*
  * Communication between the interrupt handler and the main program
- * 
+ *
  * The interrupt handler is executed when a falling edge appear on pin 2
  * It pushes the current date in microseconds.
- * 
+ *
  * Use it with a push button to see the bounces
  */
-#include <RingBuffer.h>
- 
-RingBuffer<uint32_t, 10> comBuffer;
+#include <RingBuf.h>
+
+RingBuf<uint32_t, 10> comBuffer;
 
 void externalInterruptHandler()
 {

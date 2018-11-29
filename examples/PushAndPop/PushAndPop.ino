@@ -42,9 +42,9 @@
 
 */
 
-#include <RingBuffer.h>
+#include <RingBuf.h>
 
-RingBuffer<uint8_t, 10> myBuffer;
+RingBuf<uint8_t, 10> myBuffer;
 
 void setup()
 {
