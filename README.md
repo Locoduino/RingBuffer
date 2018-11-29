@@ -1,6 +1,4 @@
-[![Build Status](https://travis-ci.org/Locoduino/RingBuffer.svg?branch=master)](https://travis-ci.org/Locoduino/RingBuffer)
-
-# RingBuffer
+# RingBuffer [![Build Status](https://travis-ci.org/Locoduino/RingBuffer.svg?branch=master)](https://travis-ci.org/Locoduino/RingBuffer)
 
 A simple and easy to use ring buffer library for Arduino. Interrupt safe functions are provided too.
 
