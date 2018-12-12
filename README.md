@@ -4,13 +4,14 @@ A simple and easy to use ring buffer library for Arduino. Interrupt safe functio
 
 ## Changelog
 
+- 1.0.3 Changed the way templates are instanciated. Now, a size greater than 255 is allowed and leads to a uint16_t datatype used for size and index. In addition, wrong size are detected and a compilation error is emited. Added example ```BigBuffer``` with a size over 255.
 - 1.0.2 Changed the name of the template from RingBuffer to RingBuf in order to avoid a name conflict with and internal RingBuffer class used in the ARM version of the Arduino core.
 - 1.0.1 Fix a mistake in pop documentation
 - 1.0   Initial release.
 
 ## Limitation
 
-The size of the ring buffer is limited to 255 elements. The compiler will not prevent you from declaring a buffer size 0 but a size 0 is not supported (and otherwise silly). Among the quirks with a size of 0 is the fact that the buffer is both empty and full.
+The size of the ring buffer is limited to 65535 elements. The compiler will emit an error is the buffer size is 0 or if the buffer size is greated than 65535.
 
 ## Using the library
 
@@ -26,7 +27,7 @@ Instantiate a ring buffer by using the following syntax:
 RingBuf<type, size> myRingBuffer;
 ```
 
-```type``` is the type name of each element of the ring buffer. ```size``` is the size, from 1 to 255, of the ring buffer. For instance the declaration shown below instantiate a ring buffer where each element is a ```byte``` with a size of 20.
+```type``` is the type name of each element of the ring buffer. ```size``` is the size, from 1 to 65535, of the ring buffer. For instance the declaration shown below instantiate a ring buffer where each element is a ```byte``` with a size of 20.
 
 ```
 RingBuf<byte, 20> aBuffer;
@@ -44,11 +45,11 @@ The following functions are available to manage the ring buffer.
 
 ### maxSize()
 
-```maxSize()``` returns an ```uint8_t``` which is the maximum size of the ring buffer. It is the value set when the ring buffer has been instantiated.
+```maxSize()``` returns an ```uint8_t``` for buffers of size lower or equal to 255 and an ```uint16_t``` for buffers of size in the [256, 65535] interval. It is the value set when the ring buffer has been instantiated.
 
 ### size()
 
-```size()``` returns an ```uint8_t``` which is the current size of the ring buffer. It is between 0 and ```maxSize()```.
+```size()``` returns an ```uint8_t``` for buffers of size lower or equal to 255 and an ```uint16_t``` for buffers of size in the [256, 65535] interval, which is the current size of the ring buffer. It is between 0 and ```maxSize()```.
 
 ### clear()
 

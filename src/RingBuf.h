@@ -47,62 +47,103 @@
 
 #include <Arduino.h>
 
-template <typename rg_element_t, uint8_t __maxSize__>
+/*
+ * Set the integer size used to store the size of the buffer according of
+ * the size given in the template instanciation. Thanks to Niklas Gürtler
+ * to share his knowledge of C++ template meta programming.
+ * https://niklas-guertler.de/
+ *
+ * If Index argument is true, the ring buffer has a size and an index
+ * stored in an uint8_t (Type below) because its size is within [1,255].
+ * Intermediate computation may need an uint16_t (BiggerType below).
+ * If Index argument is false, the ring buffer has a size and an index
+ * stored in an uint16_t (Type below) because its size is within [256,65535].
+ * Intermediate computation may need an uint32_t (BiggerType below).
+ */
+
+namespace RingBufHelper {
+  template<bool fits_in_uint8_t> struct Index {
+    using Type = uint16_t;        /* index of the buffer */
+    using BiggerType = uint32_t;  /* for intermediate calculation */
+  };
+  template<> struct Index<false> {
+    using Type = uint8_t;         /* index of the buffer */
+    using BiggerType = uint16_t;  /* for intermediate calculation */
+  };
+}
+
+template <
+  typename ET,
+  size_t S,
+  typename IT = typename RingBufHelper::Index<(S > 255)>::Type,
+  typename BT = typename RingBufHelper::Index<(S > 255)>::BiggerType
+>
 class RingBuf
 {
-private:
-  rg_element_t mBuffer[__maxSize__];
-  uint8_t mReadIndex;
-  uint8_t mSize;
+  /*
+   * check the size is greater than 0, otherwise emit a compile time error
+   */
+  static_assert(S > 0, "RingBuf with size 0 are forbidden");
 
-  uint8_t writeIndex();
+  /*
+   * check the size is lower or equal to the maximum uint16_t value,
+   * otherwise emit a compile time error
+   */
+  static_assert(S <= UINT16_MAX, "RingBuf with size greater than 65535 are forbidden");
+
+private:
+  ET mBuffer[S];
+  IT mReadIndex;
+  IT mSize;
+
+  IT writeIndex();
 
 public:
   /* Constructor. Init mReadIndex to 0 and mSize to 0 */
   RingBuf();
   /* Push a data at the end of the buffer */
-  bool push(const rg_element_t inElement) __attribute__ ((noinline));
+  bool push(const ET inElement) __attribute__ ((noinline));
   /* Push a data at the end of the buffer. Copy it from its pointer */
-  bool push(const rg_element_t * const inElement) __attribute__ ((noinline));
+  bool push(const ET * const inElement) __attribute__ ((noinline));
   /* Push a data at the end of the buffer with interrupts disabled */
-  bool lockedPush(const rg_element_t inElement);
+  bool lockedPush(const ET inElement);
   /* Push a data at the end of the buffer with interrupts disabled. Copy it from its pointer */
-  bool lockedPush(const rg_element_t * const inElement);
+  bool lockedPush(const ET * const inElement);
   /* Pop the data at the beginning of the buffer */
-  bool pop(rg_element_t &outElement) __attribute__ ((noinline));
+  bool pop(ET &outElement) __attribute__ ((noinline));
   /* Pop the data at the beginning of the buffer with interrupt disabled */
-  bool lockedPop(rg_element_t &outElement);
+  bool lockedPop(ET &outElement);
   /* Return true if the buffer is full */
-  bool isFull()  { return mSize == __maxSize__; }
+  bool isFull()  { return mSize == S; }
   /* Return true if the buffer is empty */
   bool isEmpty() { return mSize == 0; }
   /* Reset the buffer  to an empty state */
   void clear()   { mSize = 0; }
   /* return the size of the buffer */
-  uint8_t size() { return mSize; }
+  IT size() { return mSize; }
   /* return the maximum size of the buffer */
-  uint8_t maxSize() { return __maxSize__; }
+  IT maxSize() { return S; }
   /* access the buffer using array syntax, not interrupt safe */
-  rg_element_t &operator[](uint8_t inIndex);
+  ET &operator[](IT inIndex);
 };
 
-template <typename rg_element_t, uint8_t __maxSize__>
-uint8_t RingBuf<rg_element_t, __maxSize__>::writeIndex()
+template <typename ET, size_t S, typename IT, typename BT>
+IT RingBuf<ET, S, IT, BT>::writeIndex()
 {
- uint16_t wi = (uint16_t)mReadIndex + (uint16_t)mSize;
- if (wi >= (uint16_t)__maxSize__) wi -= (uint16_t)__maxSize__;
- return (uint8_t)wi;
+ BT wi = (BT)mReadIndex + (BT)mSize;
+ if (wi >= (BT)S) wi -= (BT)S;
+ return (IT)wi;
 }
 
-template <typename rg_element_t, uint8_t __maxSize__>
-RingBuf<rg_element_t, __maxSize__>::RingBuf() :
+template <typename ET, size_t S, typename IT, typename BT>
+RingBuf<ET, S, IT, BT>::RingBuf() :
 mReadIndex(0),
 mSize(0)
 {
 }
 
-template <typename rg_element_t, uint8_t __maxSize__>
-bool RingBuf<rg_element_t, __maxSize__>::push(const rg_element_t inElement)
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::push(const ET inElement)
 {
   if (isFull()) return false;
   mBuffer[writeIndex()] = inElement;
@@ -110,8 +151,8 @@ bool RingBuf<rg_element_t, __maxSize__>::push(const rg_element_t inElement)
   return true;
 }
 
-template <typename rg_element_t, uint8_t __maxSize__>
-bool RingBuf<rg_element_t, __maxSize__>::push(const rg_element_t * const inElement)
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::push(const ET * const inElement)
 {
   if (isFull()) return false;
   mBuffer[writeIndex()] = *inElement;
@@ -119,8 +160,8 @@ bool RingBuf<rg_element_t, __maxSize__>::push(const rg_element_t * const inEleme
   return true;
 }
 
-template <typename rg_element_t, uint8_t __maxSize__>
-bool RingBuf<rg_element_t, __maxSize__>::lockedPush(const rg_element_t inElement)
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::lockedPush(const ET inElement)
 {
   noInterrupts();
   bool result = push(inElement);
@@ -128,8 +169,8 @@ bool RingBuf<rg_element_t, __maxSize__>::lockedPush(const rg_element_t inElement
   return result;
 }
 
-template <typename rg_element_t, uint8_t __maxSize__>
-bool RingBuf<rg_element_t, __maxSize__>::lockedPush(const rg_element_t * const inElement)
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::lockedPush(const ET * const inElement)
 {
   noInterrupts();
   bool result = push(inElement);
@@ -137,19 +178,19 @@ bool RingBuf<rg_element_t, __maxSize__>::lockedPush(const rg_element_t * const i
   return result;
 }
 
-template <typename rg_element_t, uint8_t __maxSize__>
-bool RingBuf<rg_element_t, __maxSize__>::pop(rg_element_t &outElement)
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::pop(ET &outElement)
 {
   if (isEmpty()) return false;
   outElement = mBuffer[mReadIndex];
   mReadIndex++;
   mSize--;
-  if (mReadIndex == __maxSize__) mReadIndex = 0;
+  if (mReadIndex == S) mReadIndex = 0;
   return true;
 }
 
-template <typename rg_element_t, uint8_t __maxSize__>
-bool RingBuf<rg_element_t, __maxSize__>::lockedPop(rg_element_t &outElement)
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::lockedPop(ET &outElement)
 {
   noInterrupts();
   bool result = pop(outElement);
@@ -157,13 +198,13 @@ bool RingBuf<rg_element_t, __maxSize__>::lockedPop(rg_element_t &outElement)
   return result;
 }
 
-template <typename rg_element_t, uint8_t __maxSize__>
-rg_element_t &RingBuf<rg_element_t, __maxSize__>::operator[](uint8_t inIndex)
+template <typename ET, size_t S, typename IT, typename BT>
+ET &RingBuf<ET, S, IT, BT>::operator[](IT inIndex)
 {
   if (inIndex >= mSize) return mBuffer[0];
-  uint16_t index = (uint16_t)mReadIndex + (uint16_t)inIndex;
-  if (index >= (uint16_t)__maxSize__) index -= (uint16_t)__maxSize__;
-  return mBuffer[(uint8_t)index];
+  BT index = (BT)mReadIndex + (BT)inIndex;
+  if (index >= (BT)S) index -= (BT)S;
+  return mBuffer[(IT)index];
 }
 
 #endif /* __RINGBUF_H__ */
