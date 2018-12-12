@@ -15,7 +15,7 @@ env:
 #    - DOXYFILE: $TRAVIS_BUILD_DIR/Doxyfile
 
 before_install:
-   - source <(curl -SLs https://raw.githubusercontent.com/Locoduino/travis_scripts/master/standard.sh)
+   - source <(curl -SLs https://raw.githubusercontent.com/Locoduino/travis_scripts/master/core.sh)
 
 script:
    - build_main_platforms
