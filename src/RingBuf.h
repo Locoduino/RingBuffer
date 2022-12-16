@@ -125,6 +125,9 @@ public:
   IT maxSize() { return S; }
   /* access the buffer using array syntax, not interrupt safe */
   ET &operator[](IT inIndex);
+
+  bool peek(ET &outElement, const std::size_t distance = 0)  __attribute__ ((noinline));
+  bool lockedPeek(ET &outElement, const std::size_t distance = 0);
 };
 
 template <typename ET, size_t S, typename IT, typename BT>
@@ -194,6 +197,31 @@ bool RingBuf<ET, S, IT, BT>::lockedPop(ET &outElement)
 {
   noInterrupts();
   bool result = pop(outElement);
+  interrupts();
+  return result;
+}
+
+
+
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::peek(ET &outElement, const std::size_t distance)
+{
+  if (isEmpty() || size() < distance) return false;
+  //Take care of the wrap around
+  std::size_t temp_read_index = mReadIndex + distance;
+  if(temp_read_index >= S) {
+    temp_read_index -= S;
+  }
+
+  outElement = mBuffer[temp_read_index];
+  return true;
+}
+
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::lockedPeek(ET &outElement, const std::size_t distance)
+{
+  noInterrupts();
+  bool result = peek(outElement,distance);
   interrupts();
   return result;
 }

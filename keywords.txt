@@ -19,6 +19,8 @@ isEmpty	KEYWORD2
 clear	KEYWORD2
 lockedPush	KEYWORD2
 lockedPop	KEYWORD2
+peek    KEYWORD2
+lockedPeek KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
