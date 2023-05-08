@@ -13,11 +13,13 @@ RingBuf	KEYWORD1
 #######################################
 
 push	KEYWORD2
+pushOverwrite	KEYWORD2
 pop	KEYWORD2
 isFull	KEYWORD2
 isEmpty	KEYWORD2
 clear	KEYWORD2
 lockedPush	KEYWORD2
+lockedPushOverwrite	KEYWORD2
 lockedPop	KEYWORD2
 peek    KEYWORD2
 lockedPeek KEYWORD2

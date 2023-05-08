@@ -44,33 +44,36 @@
 
 #include <RingBuf.h>
 
-RingBuf<uint8_t, 10> myBuffer;
+RingBuf<uint8_t, 8> myBuffer;
 
-void setup()
-{
+void setup() {
   Serial.begin(115200);
 
   uint8_t i = 0;
-  while (myBuffer.push(i++));
-  for (uint8_t j = 0; j < myBuffer.size(); j++) Serial.println(myBuffer[j]);
+  while (myBuffer.push(i++))
+    ;
+  for (uint8_t j = 0; j < myBuffer.size(); j++)
+    Serial.println(myBuffer[j]);
   Serial.println("--------");
   uint8_t k;
-  while (myBuffer.pop(k)) Serial.println(k);
+  while (myBuffer.pop(k))
+    Serial.println(k);
   Serial.println("--------");
-  for (uint8_t j = 0; j < 5; j++) myBuffer.push(i++);
-  for (uint8_t j = 0; j < myBuffer.size(); j++) Serial.println(myBuffer[j]);
+  for (uint8_t j = 0; j < 5; j++)
+    myBuffer.push(i++);
+  for (uint8_t j = 0; j < myBuffer.size(); j++)
+    Serial.println(myBuffer[j]);
   Serial.println("--------");
   Serial.flush();
   myBuffer.pop(k);
   Serial.println(k);
   Serial.println("--------");
-  for (uint8_t j = 0; j < myBuffer.size(); j++) Serial.println(myBuffer[j]);
+  for (uint8_t j = 0; j < myBuffer.size(); j++)
+    Serial.println(myBuffer[j]);
   Serial.println("--------");
   myBuffer.push(k);
-  for (uint8_t j = 0; j < myBuffer.size(); j++) Serial.println(myBuffer[j]);
+  for (uint8_t j = 0; j < myBuffer.size(); j++)
+    Serial.println(myBuffer[j]);
 }
 
-void loop()
-{
-
-}
+void loop() {}

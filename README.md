@@ -7,6 +7,7 @@ A simple and easy to use ring buffer library for Arduino. Interrupt safe functio
 
 ## Changelog
 
+- 1.0.4 Added methods to push an element and overwrite the oldest data.
 - 1.0.3 Changed the way templates are instanciated. Now, a size greater than 255 is allowed and leads to a uint16_t datatype used for size and index. In addition, wrong size are detected and a compilation error is emited. Added example ```BigBuffer``` with a size over 255.
 - 1.0.2 Changed the name of the template from RingBuffer to RingBuf in order to avoid a name conflict with and internal RingBuffer class used in the ARM version of the Arduino core.
 - 1.0.1 Fix a mistake in pop documentation
@@ -62,9 +63,17 @@ The following functions are available to manage the ring buffer.
 
 ```push(data)``` pushes ```data``` at the end of the ring buffer if there is room available. ```data``` should be of the type declared when the ring buffer has been instanciated. If the data has been successfully added to the ring buffer ```true``` is returned and ```false``` otherwise. A second form exists where the argument is a pointer to the data. The use of this second form allows to reduce the number of copies. Using argument passing by value or pointer is left to your discretion
 
+### pushOverwrite(data)
+
+```pushOverwrite(data)``` pushes ```data``` at the end of the ring buffer if there is room available or overwrite the oldest data if there is no room. ```data``` should be of the type declared when the ring buffer has been instanciated. If the data has been added to the ring buffer without overwriting the oldest data ```true``` is returned and ```false``` if an overwrite occured. A second form exists where the argument is a pointer to the data. The use of this second form allows to reduce the number of copies. Using argument passing by value or pointer is left to your discretion
+
 ### lockedPush(data)
 
 ```lockedPush(data)``` works as ```push(data)``` except interrupts are disabled during the update of the ring buffer. You should use this function in your main program if the ring buffer is shared between the main program and an interrupt handler and data are pushed by the main program and popped by the interrupt handler.
+
+### lockedPushOverwrite(data)
+
+```lockedPushOverwrite(data)``` works as ```pushOverwite(data)``` except interrupts are disabled during the update of the ring buffer. You should use this function in your main program if the ring buffer is shared between the main program and an interrupt handler and data are pushed by the main program and popped by the interrupt handler.
 
 ### pop(data)
 
