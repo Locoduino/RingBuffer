@@ -63,8 +63,8 @@
 
 namespace RingBufHelper {
 template <bool fits_in_uint8_t> struct Index {
-  using Type = uint16_t;       /* index of the buffer */
-  using BiggerType = uint32_t; /* for intermediate calculation */
+  using Type = uint32_t;       /* index of the buffer */
+  using BiggerType = uint16_t; /* for intermediate calculation */
 };
 template <> struct Index<false> {
   using Type = uint8_t;        /* index of the buffer */
@@ -85,8 +85,8 @@ class RingBuf {
    * check the size is lower or equal to the maximum uint16_t value,
    * otherwise emit a compile time error
    */
-  static_assert(S <= UINT16_MAX,
-                "RingBuf with size greater than 65535 are forbidden");
+  static_assert(S <= UINT32_MAX,
+                "RingBuf with size greater than 2147483647 are forbidden");
 
 private:
   ET mBuffer[S];
