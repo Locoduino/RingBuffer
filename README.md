@@ -83,12 +83,20 @@ If the buffer is not empty, ```pop(data)``` pops a data from the beginning of th
 
 ```lockedPop(data)``` works as ```pop(data)```. In addition interrupts are disabled during the update of the ring buffer. You should use this function in your main program if the ring buffer is shared between the main program and an interrupt handler and data are pushed by the interrupt handler and popped by the main program.
 
+### peek(data, distance)
+
+If the buffer is not empty, ```peek(data, distance)``` peeks a data from the next x-elements without poping them and puts it in ```data``` and return ```true```. If the buffer is empty ```data``` is unchanged and ```false``` is returned.
+
+### lockedPeek(data, distance)
+
+```lockedPeek(data, distance)``` works as ```peek(data, distance)```. In addition interrupts are disabled during the read of the ring buffer. You should use this function in your main program if the ring buffer is shared between the main program and an interrupt handler and data are pushed by the interrupt handler and popped by the main program.
+
 ### operator[]
 
 The standard array element access syntax allows for direct access of elements of the ring buffer. For instance, if a buffer is declared like that:
 
 ```
-RingBuffer<uint32_t, 10> aBuffer;
+RingBuf<uint32_t, 10> aBuffer;
 ```
 
 one can write:
@@ -110,7 +118,7 @@ Note: this operator is not interrupt safe. If you need to access a circular buff
 ### Add an element with error handling
 
 ```
-RingBuffer<uint8_t, 10> myBuffer;
+RingBuf<uint8_t, 10> myBuffer;
 
 void setup()
 {
@@ -124,7 +132,7 @@ void setup()
 ### Process an element if available
 
 ```
-RingBuffer<uint8_t, 10> myBuffer;
+RingBuf<uint8_t, 10> myBuffer;
 
 void setup()
 {
@@ -139,9 +147,9 @@ void setup()
 ### Fill a buffer with values from 10 to 1 then print all the elements
 
 ```
-#include <RingBuffer.h>
+#include <RingBuf.h>
 
-RingBuffer<uint8_t, 10> myBuffer;
+RingBuf<uint8_t, 10> myBuffer;
 
 void setup()
 {
@@ -150,6 +158,33 @@ void setup()
   Serial.begin(115200);
   for (uint8_t j = 0; j < myBuffer.size(); j++) {
     Serial.println(myBuffer[j]);
+  }
+}
+
+void loop()
+{
+}
+```
+### Fill a buffer with values from 10 to 1 then pop and peek the next element
+
+```
+#include <RingBuf.h>
+
+RingBuf<uint8_t, 10> myBuffer;
+
+void setup()
+{
+  uint8_t i = 10;
+  while(myBuffer.push(i--));
+  Serial.begin(115200);
+
+  while(myBuffer.pop(i)){
+    Serial.printf("Value: %d ", i);
+    if (myBuffer.peek(i, 0)) {
+      Serial.printf("Next: %d\n", i);
+    } else {
+      Serial.println("Next: - ");
+    }
   }
 }
 
