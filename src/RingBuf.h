@@ -99,6 +99,9 @@ private:
 public:
   /* Constructor. Init mReadIndex to 0 and mSize to 0 */
   RingBuf();
+  /* Constructor with conditional helper. Does not init mReadIndex and mSize
+   * if helper returns true */
+  RingBuf(bool (*initHelper)(void));
   /* Push a data in the buffer and overwrite the older data if any */
   bool pushOverwrite(const ET inElement) __attribute__((noinline));
   /* Push a data in the buffer and overwrite the older data if any, copy it from
@@ -158,6 +161,14 @@ void RingBuf<ET, S, IT, BT>::incReadIndex() {
 
 template <typename ET, size_t S, typename IT, typename BT>
 RingBuf<ET, S, IT, BT>::RingBuf() : mReadIndex(0), mSize(0) {}
+
+template <typename ET, size_t S, typename IT, typename BT>
+RingBuf<ET, S, IT, BT>::RingBuf(bool (*initHelper)(void)) {
+  if (!initHelper()) {
+    mReadIndex = 0;
+    mSize = 0;
+  }
+}
 
 template <typename ET, size_t S, typename IT, typename BT>
 bool RingBuf<ET, S, IT, BT>::push(const ET inElement) {
