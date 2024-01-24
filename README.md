@@ -117,7 +117,7 @@ Note: this operator is not interrupt safe. If you need to access a circular buff
 
 ### Add an element with error handling
 
-```
+```ino
 RingBuf<uint8_t, 10> myBuffer;
 
 void setup()
@@ -131,7 +131,7 @@ void setup()
 
 ### Process an element if available
 
-```
+```ino
 RingBuf<uint8_t, 10> myBuffer;
 
 void setup()
@@ -146,7 +146,7 @@ void setup()
 
 ### Fill a buffer with values from 10 to 1 then print all the elements
 
-```
+```ino
 #include <RingBuf.h>
 
 RingBuf<uint8_t, 10> myBuffer;
@@ -167,7 +167,7 @@ void loop()
 ```
 ### Fill a buffer with values from 10 to 1 then pop and peek the next element
 
-```
+```ino
 #include <RingBuf.h>
 
 RingBuf<uint8_t, 10> myBuffer;
@@ -186,6 +186,36 @@ void setup()
       Serial.println("Next: - ");
     }
   }
+}
+
+void loop()
+{
+}
+```
+### Skip buffer initialization in ESP32 RTC memory when executed after wakeup from deep sleep
+
+```ino
+#include <RingBuf.h>
+
+RTC_DATA_ATTR uint32_t wakeupCounter = 0;
+RTC_DATA_ATTR RingBuf<uint32_t, 8> myBuffer([]() -> bool {
+  return esp_sleep_get_wakeup_cause() != ESP_SLEEP_WAKEUP_UNDEFINED; 
+});
+
+void setup()
+{
+  Serial.begin(115200);
+  Serial.print("Wakeup! #");
+  Serial.println(++wakeupCounter);
+  myBuffer.pushOverwrite(wakeupCounter);
+
+  Serial.print("myBuffer: ");
+  for (uint8_t i = 0; i < myBuffer.size(); ++i) {
+    Serial.print(myBuffer[i]); Serial.print(" ");
+  }
+  Serial.println();
+  Serial.flush();
+  esp_deep_sleep(5000000);
 }
 
 void loop()
