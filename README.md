@@ -7,6 +7,7 @@ A simple and easy to use ring buffer library for Arduino. Interrupt safe functio
 
 ## Changelog
 
+- 1.0.5 Add the possibility of preserving the buffer through a reset. Thanks to @vstepchik for the example.
 - 1.0.4 Added methods to push an element and overwrite the oldest data.
 - 1.0.3 Changed the way templates are instanciated. Now, a size greater than 255 is allowed and leads to a uint16_t datatype used for size and index. In addition, wrong size are detected and a compilation error is emited. Added example ```BigBuffer``` with a size over 255.
 - 1.0.2 Changed the name of the template from RingBuffer to RingBuf in order to avoid a name conflict with and internal RingBuffer class used in the ARM version of the Arduino core.
@@ -37,9 +38,29 @@ RingBuf<type, size> myRingBuffer;
 RingBuf<byte, 20> aBuffer;
 ```
 
-## Functions
+It is also possible to instantiate a buffer by passing a function pointer to the constructor. The function whose pointer is passed must have the following prototype:
 
-The following functions are available to manage the ring buffer.
+```
+bool f();
+```
+
+The constructor calls the function to determine whether the buffer should have its buffer management member data (current size and read/write index) initialized. If the function returns ```false``` then the members are initialized, otherwise they are not.
+
+This is useful if the buffer is housed in permanent memory and needs to retain its data during a reset. Usually, the cause of the reset is available, allowing you to find out whether the startup is the result of the machine powering up, or whether it is the result of some other cause (deep sleep, reset button, watchdog, ...).
+
+For example, the ESP32 is reset when it comes out of deep sleep. If we wish to keep data in the buffer, we'll allocate it in the RTC RAM, which remains powered during deep sleep. To prevent the buffer from being reset when it comes out of deep sleep, we'll use its constructor as follows:
+
+```
+RTC_DATA_ATTR RingBuf<uint32_t, 8> myBuffer([]() -> bool {
+  return esp_sleep_get_wakeup_cause() != ESP_SLEEP_WAKEUP_UNDEFINED; 
+});
+```
+
+The function is passed in lamba form and returns ```true``` if the cause is a normal exit from deep sleep and ```false``` otherwise. The result will be that, in the event of a normal exit from deep sleep, the buffer will be preserved as it was at the time of entry into deep sleep, and will be initialized if the cause of the reset is something else. A complete example is given at the end of this document.
+
+## Member functions
+
+The following member unctions are available to manage the ring buffer.
 
 ### isEmpty()
 ```isEmpty()``` returns a ```bool``` which is ```true``` if the buffer is empty and ```false``` otherwise.
