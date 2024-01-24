@@ -7,7 +7,7 @@ A simple and easy to use ring buffer library for Arduino. Interrupt safe functio
 
 ## Changelog
 
-- 1.0.5 Add the possibility of preserving the buffer through a reset. Thanks to @vstepchik for the example.
+- 1.0.5 Add the possibility of preserving the buffer through a reset. Thanks to Vitalii Stepchyk (@vstepchik) for the example.
 - 1.0.4 Added methods to push an element and overwrite the oldest data.
 - 1.0.3 Changed the way templates are instanciated. Now, a size greater than 255 is allowed and leads to a uint16_t datatype used for size and index. In addition, wrong size are detected and a compilation error is emited. Added example ```BigBuffer``` with a size over 255.
 - 1.0.2 Changed the name of the template from RingBuffer to RingBuf in order to avoid a name conflict with and internal RingBuffer class used in the ARM version of the Arduino core.
