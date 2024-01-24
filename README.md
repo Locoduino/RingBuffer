@@ -1,4 +1,4 @@
-[![GitHub release](https://img.shields.io/github/release/Locoduino/RingBuffer.svg)](https://github.com/Locoduino/RingBuffer/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/Locoduino/RingBuffer/1.0.4.svg)](https://github.com/Locoduino/RingBuffer/compare/1.0.4...master) [![Build Status](https://travis-ci.org/Locoduino/RingBuffer.svg?branch=master)](https://travis-ci.org/Locoduino/RingBuffer)
+[![GitHub release](https://img.shields.io/github/release/Locoduino/RingBuffer.svg)](https://github.com/Locoduino/RingBuffer/releases/latest) [![GitHub commits](https://img.shields.io/github/commits-since/Locoduino/RingBuffer/1.0.5.svg)](https://github.com/Locoduino/RingBuffer/compare/1.0.4...master) [![Build Status](https://travis-ci.org/Locoduino/RingBuffer.svg?branch=master)](https://travis-ci.org/Locoduino/RingBuffer)
 
 
 # RingBuffer 
