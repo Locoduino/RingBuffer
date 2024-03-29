@@ -130,15 +130,15 @@ public:
   /* Pop the data at the beginning of the buffer with interrupt disabled */
   bool lockedPop(ET &outElement);
   /* Return true if the buffer is full */
-  bool isFull() { return mSize == S; }
+  bool isFull() const { return mSize == S; }
   /* Return true if the buffer is empty */
-  bool isEmpty() { return mSize == 0; }
+  bool isEmpty() const { return mSize == 0; }
   /* Reset the buffer  to an empty state */
   void clear() { mSize = 0; }
   /* return the size of the buffer */
-  IT size() { return mSize; }
+  IT size() const { return mSize; }
   /* return the maximum size of the buffer */
-  IT maxSize() { return S; }
+  IT maxSize() const { return S; }
   /* access the buffer using array syntax, not interrupt safe */
   ET &operator[](IT inIndex);
 
