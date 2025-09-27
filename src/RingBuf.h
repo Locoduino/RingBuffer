@@ -114,6 +114,14 @@ public:
   bool push(const ET inElement) __attribute__((noinline));
   /* Push a data at the end of the buffer. Copy it from its pointer */
   bool push(const ET *const inElement) __attribute__((noinline));
+  /* Push a data at the beginning (head) of the buffer */
+  bool pushFront(const ET inElement) __attribute__((noinline));
+  /* Push a data at the beginning (head) of the buffer. Copy it from its pointer */
+  bool pushFront(const ET *const inElement) __attribute__((noinline));
+  /* Push a data at the beginning and overwrite the older data at the end if full */
+  bool pushFrontOverwrite(const ET inElement) __attribute__((noinline));
+  /* Push a data at the beginning and overwrite the older data at the end if full. Copy it from its pointer */
+  bool pushFrontOverwrite(const ET *const inElement) __attribute__((noinline));
   /* Push a data at the end of the buffer with interrupts disabled */
   bool lockedPush(const ET inElement);
   /* Push a data at the end of the buffer with interrupts disabled. Copy it from
@@ -125,6 +133,14 @@ public:
   /* Push a data in the buffer and overwrite the older data if any with
    * interrupts disabled. Copy it from its pointer */
   bool lockedPushOverwrite(const ET *const inElement);
+  /* Push a data at the beginning with interrupts disabled */
+  bool lockedPushFront(const ET inElement);
+  /* Push a data at the beginning with interrupts disabled. Copy it from its pointer */
+  bool lockedPushFront(const ET *const inElement);
+  /* Push a data at the beginning and overwrite if full with interrupts disabled */
+  bool lockedPushFrontOverwrite(const ET inElement);
+  /* Push a data at the beginning and overwrite if full with interrupts disabled. Copy it from its pointer */
+  bool lockedPushFrontOverwrite(const ET *const inElement);
   /* Pop the data at the beginning of the buffer */
   bool pop(ET &outElement) __attribute__((noinline));
   /* Pop the data at the beginning of the buffer with interrupt disabled */
@@ -191,6 +207,72 @@ bool RingBuf<ET, S, IT, BT>::push(const ET *const inElement) {
   return true;
 }
 
+/*
+ * Push at the beginning (head) of the buffer.
+ * If the buffer is full, returns false and does not modify the buffer.
+ */
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::pushFront(const ET inElement) {
+  if (isFull())
+    return false;
+  if (mReadIndex == 0)
+    mReadIndex = S - 1;
+  else
+    mReadIndex--;
+  mBuffer[mReadIndex] = inElement;
+  mSize++;
+  return true;
+}
+
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::pushFront(const ET *const inElement) {
+  if (isFull())
+    return false;
+  if (mReadIndex == 0)
+    mReadIndex = S - 1;
+  else
+    mReadIndex--;
+  mBuffer[mReadIndex] = *inElement;
+  mSize++;
+  return true;
+}
+
+/*
+ * Push at the beginning (head) of the buffer, overwriting the oldest tail
+ * element if the buffer is full. Mirrors pushOverwrite() semantics:
+ * returns false when an overwrite happened, true otherwise.
+ */
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::pushFrontOverwrite(const ET inElement) {
+  if (mReadIndex == 0)
+    mReadIndex = S - 1;
+  else
+    mReadIndex--;
+  mBuffer[mReadIndex] = inElement;
+  if (isFull()) {
+    // size stays S; we've effectively dropped the former last element
+    return false;
+  } else {
+    mSize++;
+    return true;
+  }
+}
+
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::pushFrontOverwrite(const ET *const inElement) {
+  if (mReadIndex == 0)
+    mReadIndex = S - 1;
+  else
+    mReadIndex--;
+  mBuffer[mReadIndex] = *inElement;
+  if (isFull()) {
+    return false;
+  } else {
+    mSize++;
+    return true;
+  }
+}
+
 template <typename ET, size_t S, typename IT, typename BT>
 bool RingBuf<ET, S, IT, BT>::pushOverwrite(const ET inElement) {
   mBuffer[writeIndex()] = inElement;
@@ -227,6 +309,38 @@ template <typename ET, size_t S, typename IT, typename BT>
 bool RingBuf<ET, S, IT, BT>::lockedPush(const ET *const inElement) {
   noInterrupts();
   bool result = push(inElement);
+  interrupts();
+  return result;
+}
+
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::lockedPushFront(const ET inElement) {
+  noInterrupts();
+  bool result = pushFront(inElement);
+  interrupts();
+  return result;
+}
+
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::lockedPushFront(const ET *const inElement) {
+  noInterrupts();
+  bool result = pushFront(inElement);
+  interrupts();
+  return result;
+}
+
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::lockedPushFrontOverwrite(const ET inElement) {
+  noInterrupts();
+  bool result = pushFrontOverwrite(inElement);
+  interrupts();
+  return result;
+}
+
+template <typename ET, size_t S, typename IT, typename BT>
+bool RingBuf<ET, S, IT, BT>::lockedPushFrontOverwrite(const ET *const inElement) {
+  noInterrupts();
+  bool result = pushFrontOverwrite(inElement);
   interrupts();
   return result;
 }
